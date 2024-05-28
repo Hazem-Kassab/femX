@@ -73,15 +73,33 @@ s.output()
 Upon running the above code, output files will be generated in the output folder. To graphically view
 the model, you should run the "viewer.py" python file:
 
-![alt text]()
+displacement in the x direction
+
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/disp_x.PNG)
+
+displacement in the y direction
+
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/disp_y.PNG)
+
+stresses in the x direction
+
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/stress_x.PNG)
+
+principle stresses 1
+
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/p_stress_1.PNG)
+
+principle stresses 2
+
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/p_stress_2.PNG)
 
 ## Non-linear analysis of simply supported beam using 8-node plane stress elements
 
-![alt text]()
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Simple%20beam/disp_y.PNG)
 
 load-displacement curve
 
-![alt text]()
+![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Simple%20beam/load_displacement_2.PNG)
 
 ## Contributing
 
