@@ -85,11 +85,11 @@ stresses in the x direction
 
 ![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/stress_x.PNG)
 
-principle stresses 1
+principal stresses 1
 
 ![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/p_stress_1.PNG)
 
-principle stresses 2
+principal stresses 2
 
 ![alt text](https://github.com/Hazem-Kassab/femX/blob/master/docs/example%20images/Cantilever/p_stress_2.PNG)
 

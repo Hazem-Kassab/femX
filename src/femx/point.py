@@ -45,11 +45,11 @@ class Point:
         return np.sum([x**2 for x in vector])**0.5
 
     @property
-    def principle_stress_tensor(self) -> Tensor:
+    def principal_stress_tensor(self) -> Tensor:
         return Tensor(self.stress_tensor.diagonalized)
 
     @property
-    def principle_strain_tensor(self) -> Tensor:
+    def principal_strain_tensor(self) -> Tensor:
         return Tensor(self.strain_tensor.diagonalized)
 
     def stress_vector(self, normal_vector: Vector) -> Vector:

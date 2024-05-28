@@ -18,12 +18,12 @@ class Tensor:
         return np.linalg.eig(self.tensor)
 
     @property
-    def principle_directions(self) -> np.ndarray:
+    def principal_directions(self) -> np.ndarray:
         return self._eigenpairs()[1]
 
     @property
     def diagonalized(self) -> np.ndarray:
-        return self.principle_directions.T.dot(self.tensor.dot(self.principle_directions))
+        return self.principal_directions.T.dot(self.tensor.dot(self.principal_directions))
 
     @property
     def first_invariant(self):
