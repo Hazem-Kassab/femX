@@ -2,10 +2,10 @@ from abc import ABC
 
 import numpy as np
 
-from Materials.material import Material
-from gauss_point import GaussPoint
-from point import Point
-from stress_measures import tresca_stress, von_mises_stress
+from femx.materials.material import Material
+from femx.gauss_point import GaussPoint
+from femx.point import Point
+from femx.stress_measures import tresca_stress, von_mises_stress
 
 
 class PressureIndependentMaterial(Material, ABC):

@@ -1,6 +1,6 @@
 import numpy as np
 
-from FailureCriteria.failure_criterion import FailureCriterion
+from femx.failure_criteria.failure_criterion import FailureCriterion
 
 
 class TrescaYieldCriterion(FailureCriterion):

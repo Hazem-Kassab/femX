@@ -1,12 +1,14 @@
+# 4-node plane-stress element with 4 Gauss Points
+
 import math
 
 import numpy as np
 
-from gauss_point import GaussPoint
-from node import Node
-from Materials.material import Material
-from Elements.element import Element
-from point import Point
+from femx.gauss_point import GaussPoint
+from femx.node import Node
+from femx.materials.material import Material
+from femx.elements.element import Element
+from femx.point import Point
 
 
 class Q4Element(Element):

@@ -1,11 +1,16 @@
+import time
+
+
+from pathlib import Path
+
 import numpy as np
 
 import csv
 
-from strucutre import Structure
-from time import process_time
+from femx.strucutre import Structure
+from femx.elements.element import Element
 
-from stress_measures import tresca_stress, von_mises_stress
+from femx.stress_measures import tresca_stress, von_mises_stress
 
 
 class Solver:
@@ -18,24 +23,32 @@ class Solver:
     def global_stiffness_matrix(self):
         dofs_count = len(self.dofs)
         matrix = np.zeros((dofs_count, dofs_count))
-        for element in self.structure.elements:
-            for i, dof_i in enumerate(element.degrees_of_freedom):
+        self._assemble_global_stiffness_matrix(matrix, self.structure.elements)
+        return matrix + matrix.T - np.diag(np.diag(matrix))
+
+    def _assemble_global_stiffness_matrix(self, matrix, elements: list[Element]):
+        for element in elements:
+            element_stiffness_matrix = element.stiffness_matrix()
+            i = 0
+            for dof_i in element.degrees_of_freedom:
+                j = i
                 dof_i_index = self.dofs.index(dof_i)
-                for j, dof_j in enumerate(element.degrees_of_freedom):
+                for dof_j in element.degrees_of_freedom[i:]:
                     dof_j_index = self.dofs.index(dof_j)
-                    matrix[dof_i_index, dof_j_index] += element.stiffness_matrix()[i, j]
-        return matrix
+                    matrix[dof_i_index, dof_j_index] += element_stiffness_matrix[i, j]
+                    j += 1
+                i += 1
 
     def ff_matrix(self):
         fdofs = len(self.structure.free_degrees_of_freedom)
         return self.global_stiffness_matrix()[:fdofs, :fdofs]
 
-    def fs_matrix(self):
-        fdofs = len(self.structure.free_degrees_of_freedom)
-        return self.global_stiffness_matrix()[:fdofs, fdofs:]
-
     def sf_matrix(self):
-        return self.fs_matrix().T
+        fdofs = len(self.structure.free_degrees_of_freedom)
+        return self.global_stiffness_matrix()[fdofs:, :fdofs]
+
+    def fs_matrix(self):
+        return self.sf_matrix().T
 
     def ss_matrix(self):
         fdofs = len(self.structure.free_degrees_of_freedom)
@@ -64,17 +77,35 @@ class Solver:
                                                        [0, 0, 0]])
 
     def solve(self):
-        t1 = process_time()
+        print("Solving...")
+        t1 = time.time()
         fdofs = len(self.structure.free_degrees_of_freedom)
-        displacement_vector = np.linalg.inv(self.ff_matrix()).dot(self.force_vector()[:fdofs])
-        reactions_vector = self.sf_matrix().dot(displacement_vector)
+        print("Assembling global stiffness matrix...")
+        t1b = time.time()
+        gmatrix = self.ff_matrix()
+        t2b = time.time()
+        print(f"Assembly done in {t2b - t1b:.3f} seconds")
+        print("*"*30)
+        print("inverting stiffness matrix...")
+        t1a = time.time()
+        inverse_matrix = np.linalg.inv(gmatrix)
+        t2a = time.time()
+        print(f"Inversion done in {t2a - t1a:.3f} seconds")
+        print("*"*30)
+        print("Solving for displacements...")
+        t1c = time.time()
+        displacement_vector = inverse_matrix.dot(self.force_vector()[:fdofs])
+        t2c = time.time()
+        print(f"Solved in {t2c - t1c:.3f} seconds")
+        print("*"*30)
+        # reactions_vector = self.sf_matrix().dot(displacement_vector)
         i = 0
         for dof in self.structure.free_degrees_of_freedom:
             dof.displacement = displacement_vector[i]
             i += 1
         self.assign_results_to_points()
-        t2 = process_time()
-        print(f"solution time: {t2 - t1} seconds")
+        t2 = time.time()
+        print(f"Solution time: {t2 - t1:.3f} seconds")
 
     def average_nodal_values(self):
         for element in self.structure.elements:
@@ -84,31 +115,32 @@ class Solver:
                 node.averaged_strain = np.vstack([node.averaged_strain, element.interpolated_strain(zeta, eta)])
 
     def output(self):
-        # self.average_nodal_values()
-        f0 = open(r"output/x_coordinates.txt", 'w')
-        f1 = open(r"output/y_coordinates.txt", 'w')
-        f2 = open(r"output/displacement_x.txt", 'w')
-        f3 = open(r"output/displacement_y.txt", 'w')
-        f4 = open(r"output/stress_x.txt", 'w')
-        f5 = open(r"output/stress_y.txt", 'w')
-        f6 = open(r"output/stress_xy.txt", 'w')
-        f7 = open(r"output/strain_x.txt", 'w')
-        f8 = open(r"output/strain_y.txt", 'w')
-        f9 = open(r"output/strain_xy.txt", 'w')
-        f10 = open(r"output/p_stress_1.txt", 'w')
-        f11 = open(r"output/p_stress_2.txt", 'w')
-        f12 = open(r"output/von_mises_stress.txt", 'w')
-        f13 = open(r"output/element_coordinates.csv", 'w')
-        f14 = open(r"output/element_displaced_coordinates.csv", 'w')
-        f15 = open(r"output/x_displaced_coordinates.txt", 'w')
-        f16 = open(r"output/y_displaced_coordinates.txt", 'w')
-        f17 = open(r"output/number_of_elements.txt", 'w')
-        f18 = open(r"output/averaged_stress_x.txt", 'w')
-        f19 = open(r"output/averaged_stress_y.txt", 'w')
-        f20 = open(r"output/averaged_stress_xy.txt", 'w')
-        f21 = open(r"output/averaged_strain_x.txt", 'w')
-        f22 = open(r"output/averaged_strain_y.txt", 'w')
-        f23 = open(r"output/averaged_strain_xy.txt", 'w')
+        print("Generating output files...")
+        path = Path(__file__).parent
+        f0 = open((path / "../output/x_coordinates.txt").resolve(), 'w')
+        f1 = open((path / "../output/y_coordinates.txt").resolve(), 'w')
+        f2 = open((path / "../output/displacement_x.txt").resolve(), 'w')
+        f3 = open((path / "../output/displacement_y.txt").resolve(), 'w')
+        f4 = open((path / "../output/stress_x.txt").resolve(), 'w')
+        f5 = open((path / "../output/stress_y.txt").resolve(), 'w')
+        f6 = open((path / "../output/stress_xy.txt").resolve(), 'w')
+        f7 = open((path / "../output/strain_x.txt").resolve(), 'w')
+        f8 = open((path / "../output/strain_y.txt").resolve(), 'w')
+        f9 = open((path / "../output/strain_xy.txt").resolve(), 'w')
+        f10 = open((path / "../output/p_stress_1.txt").resolve(), 'w')
+        f11 = open((path / "../output/p_stress_2.txt").resolve(), 'w')
+        f12 = open((path / "../output/von_mises_stress.txt").resolve(), 'w')
+        f13 = open((path / "../output/element_coordinates.txt").resolve(), 'w')
+        f14 = open((path / "../output/element_displaced_coordinates.txt").resolve(), 'w')
+        f15 = open((path / "../output/x_displaced_coordinates.txt").resolve(), 'w')
+        f16 = open((path / "../output/y_displaced_coordinates.txt").resolve(), 'w')
+        f17 = open((path / "../output/number_of_elements.txt").resolve(), 'w')
+        f18 = open((path / "../output/averaged_stress_x.txt").resolve(), 'w')
+        f19 = open((path / "../output/averaged_stress_y.txt").resolve(), 'w')
+        f20 = open((path / "../output/averaged_stress_xy.txt").resolve(), 'w')
+        f21 = open((path / "../output/averaged_strain_x.txt").resolve(), 'w')
+        f22 = open((path / "../output/averaged_strain_y.txt").resolve(), 'w')
+        f23 = open((path / "../output/averaged_strain_xy.txt").resolve(), 'w')
 
         writer_1 = csv.writer(f13)
         writer_2 = csv.writer(f14)
@@ -119,12 +151,7 @@ class Solver:
             writer_1.writerow(f"{node.x}" for node in element.nodes)
             writer_2.writerow(
                 f"{[str(node.coordinates + np.array([node.x_dof.displacement, node.y_dof.displacement])) for node in element.nodes]}\n")
-            zetas = etas = np.linspace(-1, 1, 20, True)
             for point in element.points:
-                # print(point.stress_tensor.tensor)
-                # for eta in etas:
-                zeta = point.zeta
-                eta = point.eta
                 x, y = element.get_coordinates(point)
                 f0.write(f"{x} ")
                 f1.write(f"{y} ")
@@ -141,12 +168,6 @@ class Solver:
                 f12.write(f"{von_mises_stress(point)} ")
                 f15.write(f"{x + element.displacement(point)[0]} ")
                 f16.write(f"{y + element.displacement(point)[1]} ")
-                # f18.write(f"{element.averaged_stress(zeta, eta)[0]} ")
-                # f19.write(f"{element.averaged_stress(zeta, eta)[1]} ")
-                # f20.write(f"{element.averaged_stress(zeta, eta)[2]} ")
-                # f21.write(f"{element.averaged_strain(zeta, eta)[0]} ")
-                # f22.write(f"{element.averaged_strain(zeta, eta)[1]} ")
-                # f23.write(f"{element.averaged_strain(zeta, eta)[2]} ")
 
         f0.close()
         f1.close()
@@ -170,3 +191,4 @@ class Solver:
         f21.close()
         f22.close()
         f23.close()
+        print("Output files generated.")

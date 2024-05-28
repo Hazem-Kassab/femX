@@ -1,4 +1,4 @@
-from Elements.element import Element
+from femx.elements.element import Element
 
 
 class Structure:

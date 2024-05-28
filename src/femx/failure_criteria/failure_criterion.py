@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from Materials.material import Material
-from point import Point
+from femx.materials.material import Material
+from femx.point import Point
 
 
 class FailureCriterion(ABC):

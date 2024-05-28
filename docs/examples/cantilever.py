@@ -1,16 +1,3 @@
-# femx
-
-A package for finite element analysis of structures
-
-## Installation
-
-```bash
-$ pip install femx
-```
-
-## Usage
-
-```bash
 # cantilever.py
 # analysis of a cantilever beam using 4-node plane stress elements
 
@@ -68,25 +55,3 @@ s.solve()
 
 # view results graphically using viewers
 s.output()
-```
-
-Upon running the above code, output files will be generated in the output folder. To graphically view
-the model, you should run the "viewer.py" python file:
-
-![alt text]()
-
-## Non-linear analysis of simply supported beam using 8-node plane stress elements
-
-![alt text]()
-
-load-displacement curve
-
-![alt text]()
-
-## Contributing
-
-Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
-
-## License
-
-`femx` was created by Hazem Kassab. It is licensed under the terms of the MIT license.

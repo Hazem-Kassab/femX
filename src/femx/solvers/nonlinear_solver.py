@@ -1,8 +1,8 @@
 import numpy as np
 
-from Solvers.solver import Solver
-from degree_of_freedom import DOF
-from stress_measures import von_mises_stress
+from femx.solvers.solver import Solver
+from femx.degree_of_freedom import DOF
+from femx.stress_measures import von_mises_stress
 
 
 class NonlinearSolver(Solver):

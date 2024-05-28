@@ -2,11 +2,11 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from Materials.material import Material
-from degree_of_freedom import DOF
-from gauss_point import GaussPoint
-from node import Node
-from point import Point
+from femx.materials.material import Material
+from femx.degree_of_freedom import DOF
+from femx.gauss_point import GaussPoint
+from femx.node import Node
+from femx.point import Point
 
 
 class Element(ABC):
@@ -18,33 +18,9 @@ class Element(ABC):
         Element.counter += 1
         self.id = Element.counter
 
-    @property
-    def thickness(self):
-        return self._thickness
-
-    @thickness.setter
-    def thickness(self, value):
-        self._thickness = value
-
-    @property
-    def material(self) -> Material:
-        return self._material
-
-    @material.setter
-    def material(self, value: Material):
-        self._material = value
-
     @abstractmethod
     def jacobian(self, point: GaussPoint):
         raise NotImplementedError
-
-    # @property
-    # def area(self):
-    #     area = 0
-    #     for zeta in self.sampling_points:
-    #         for eta in self.sampling_points:
-    #             area += np.linalg.det(self.jacobian(zeta, eta))
-    #     return area
 
     @property
     @abstractmethod
@@ -55,6 +31,7 @@ class Element(ABC):
     @abstractmethod
     def nodal_points(self):
         raise NotImplementedError
+
     @property
     def degrees_of_freedom(self) -> list[DOF]:
         dofs = []

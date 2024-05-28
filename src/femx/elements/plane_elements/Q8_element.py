@@ -1,10 +1,12 @@
+# 8-node plane-stress element with 9 Gauss Points
+
 import numpy as np
 
-from Elements.element import Element
-from Materials.material import Material
-from gauss_point import GaussPoint
-from node import Node
-from point import Point
+from femx.elements.element import Element
+from femx.materials.material import Material
+from femx.gauss_point import GaussPoint
+from femx.node import Node
+from femx.point import Point
 
 
 class Q8Element(Element):

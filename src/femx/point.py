@@ -1,7 +1,7 @@
 import numpy as np
 
-from tensor import Tensor
-from vector import Vector
+from femx.tensor import Tensor
+from femx.vector import Vector
 
 
 class Point:
@@ -98,3 +98,4 @@ class Point:
         rho = (2 * J2) ** 0.5
         theta = np.arccos(3 * 3 ** 0.5 / 2 * J3 / J2**(3/2))/3
         return np.array([zeta, rho, theta])
+
